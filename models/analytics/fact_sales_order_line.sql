@@ -23,7 +23,18 @@ WITH fact_sales_order_line__source AS (
   FROM fact_sales_order_line__rename_column
 )
 
+, fact_sales_order_line__calculate_measure AS(
 SELECT
+  product_key
+  , sales_order_key
+  , sales_order_line_key
+  , quantity
+  , unit_price
+  , quantity*unit_price AS gross_amount
+FROM fact_sales_order_line__cast_type 
+)
+
+  SELECT
   fact_line.product_key
   , fact_line.sales_order_key
   , fact_line.sales_order_line_key
@@ -31,6 +42,6 @@ SELECT
   , fact_line.quantity
   , fact_line.unit_price
   , fact_line.quantity*fact_line.unit_price AS gross_amount
-FROM fact_sales_order_line__cast_type AS fact_line
-LEFT JOIN `data-warehouse-course-417914.wide_world_importers_dwh_staging.stg_fact_sales_order` AS fact_header 
+FROM fact_sales_order_line__calculate_measure AS fact_line
+LEFT JOIN {{ref('stg_fact_sales_order')}} AS fact_header 
   ON fact_line.sales_order_key = fact_header.sales_order_key
