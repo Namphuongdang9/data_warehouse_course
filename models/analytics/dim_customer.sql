@@ -10,6 +10,7 @@ WITH dim_customer__source AS(
     , customer_name AS customer_name
     , customer_category_id AS customer_category_key
     , buying_group_id AS buying_group_key
+    , is_on_credit_hold AS is_on_credit_hold_boolean
   FROM dim_customer__source
 )
 
@@ -19,7 +20,20 @@ WITH dim_customer__source AS(
     , CAST(customer_name AS STRING) AS customer_name
     , CAST(customer_category_key AS INTEGER) AS customer_category_key
     , CAST(buying_group_key AS INTEGER) AS buying_group_key
+    , CAST(is_on_credit_hold_boolean AS BOOLEAN) AS is_on_credit_hold_boolean
   FROM dim_customer__rename_column
+)
+
+, dim_customer__convert_boolean AS(
+  SELECT
+    *
+    , CASE 
+      WHEN is_on_credit_hold_boolean IS TRUE THEN 'On Credit Hold'
+      WHEN is_on_credit_hold_boolean IS FALSE THEN 'Not On Credit Hold'
+      WHEN is_on_credit_hold_boolean IS NULL THEN 'Undefined'
+      ELSE 'Invalid'
+      END AS is_on_credit_hold
+  FROM dim_customer__cast_type
 )
 
 SELECT 
@@ -28,8 +42,9 @@ SELECT
   , dim_customer.customer_category_key
   , fact_sales_customer_categories.customer_category_name
   , fact_sales_buying_groups.buying_group_key
-  , buying_group_name
-FROM dim_customer__cast_type AS dim_customer
+  , fact_sales_buying_groups.buying_group_name
+  , dim_customer.is_on_credit_hold
+FROM dim_customer__convert_boolean AS dim_customer
 LEFT JOIN {{ ref('stg_fact_sales_customer_categories') }} AS fact_sales_customer_categories
   ON dim_customer.customer_category_key = fact_sales_customer_categories.customer_category_key
 LEFT JOIN {{ ref('stg_fact_sales_buying_groups') }} AS fact_sales_buying_groups
