@@ -39,14 +39,14 @@ WITH dim_customer__source AS(
 SELECT 
   dim_customer.customer_key
   , dim_customer.customer_name
-  , dim_customer.customer_category_key
-  , fact_sales_customer_categories.customer_category_name
-  , fact_sales_buying_groups.buying_group_key
-  , fact_sales_buying_groups.buying_group_name
   , dim_customer.is_on_credit_hold
+  , dim_customer.customer_category_key
+  , COALESCE(dim_customer_categories.customer_category_name,'Invalid') AS customer_category_name 
+  , dim_buying_groups.buying_group_key
+  , COALESCE(dim_buying_groups.buying_group_name,'Invalid') AS buying_group_name 
 FROM dim_customer__convert_boolean AS dim_customer
-LEFT JOIN {{ ref('stg_fact_sales_customer_categories') }} AS fact_sales_customer_categories
-  ON dim_customer.customer_category_key = fact_sales_customer_categories.customer_category_key
-LEFT JOIN {{ ref('stg_fact_sales_buying_groups') }} AS fact_sales_buying_groups
-  ON dim_customer.buying_group_key = fact_sales_buying_groups.buying_group_key 
+LEFT JOIN {{ ref('stg_fact_sales_customer_categories') }} AS dim_customer_categories
+  ON dim_customer.customer_category_key = dim_customer_categories.customer_category_key
+LEFT JOIN {{ ref('stg_fact_sales_buying_groups') }} AS dim_buying_groups
+  ON dim_customer.buying_group_key = dim_buying_groups.buying_group_key 
 
