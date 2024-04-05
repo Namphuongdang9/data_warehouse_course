@@ -38,7 +38,7 @@ FROM fact_sales_order_line__cast_type
   fact_line.product_key
   , fact_line.sales_order_key
   , fact_line.sales_order_line_key
-  , fact_header.customer_key
+  , COALESCE(fact_header.customer_key, -1) AS customer_key
   , fact_line.quantity
   , fact_line.unit_price
   , fact_line.quantity*fact_line.unit_price AS gross_amount
