@@ -71,8 +71,8 @@ SELECT
   , dim_buying_groups.buying_group_key
   , COALESCE(dim_buying_groups.buying_group_name,'Invalid') AS buying_group_name 
 FROM dim_customer__add_undefined_record AS dim_customer
-LEFT JOIN {{ ref('stg_fact_sales_customer_categories') }} AS dim_customer_categories
+LEFT JOIN {{ ref('stg_dim_customer_categories') }} AS dim_customer_categories
   ON dim_customer.customer_category_key = dim_customer_categories.customer_category_key
-LEFT JOIN {{ ref('stg_fact_sales_buying_groups') }} AS dim_buying_groups
+LEFT JOIN {{ ref('stg_dim_buying_groups') }} AS dim_buying_groups
   ON dim_customer.buying_group_key = dim_buying_groups.buying_group_key 
 
