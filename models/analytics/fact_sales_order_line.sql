@@ -35,14 +35,14 @@ FROM fact_sales_order_line__cast_type
 )
 
   SELECT
-  fact_line.product_key
+  fact_line.sales_order_line_key
+  , fact_line.product_key
   , fact_line.sales_order_key
-  , fact_line.sales_order_line_key
   , COALESCE(fact_header.customer_key, -1) AS customer_key
+  , COALESCE(fact_header.picked_by_person_key, -1) AS picked_by_person_key
   , fact_line.quantity
   , fact_line.unit_price
   , fact_line.quantity*fact_line.unit_price AS gross_amount
-  , COALESCE(fact_header.picked_by_person_key, -1) AS picked_by_person_key
   , fact_header.order_date AS order_date
 FROM fact_sales_order_line__calculate_measure AS fact_line
 LEFT JOIN {{ref('stg_fact_sales_order')}} AS fact_header 
